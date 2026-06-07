@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Club de Debate Albacete (UCLM)</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400..700;1,400..700&family=Syne:wght@700;800;900&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Zine & Paper Art School styling custom overrides */
+    :root {
+      --paper-bg: #FAF8F5; /* Warm vintage paper beige */
+      --ink-primary: #1C1917; /* High contrast charcoal black */
+      --ink-muted: #57534E; /* Slate-stone dark grey */
+      
+      --accent-risograph-blue: #2563EB; /* Deep cyan / riso cobalt blue */
+      --accent-highlighter-yellow: #FEF08A; /* Warm highlighter yellow */
+      --accent-terracotta: #EA580C; /* Active rust red-orange */
+      --accent-sage: #86EFAC; /* Warm pastel green accent */
+
+      --border-ink: #1C1917;
+    }
+
+    body {
+      background-color: var(--paper-bg);
+      color: var(--ink-primary);
+      font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      background-image: 
+        radial-gradient(rgba(28, 25, 23, 0.04) 1px, transparent 1px),
+        linear-gradient(rgba(28, 25, 23, 0.015) 1px, transparent 1px);
+      background-size: 24px 24px, 100% 48px;
+    }
+
+    .font-syne {
+      font-family: "Syne", sans-serif;
+    }
+    .font-serif {
+      font-family: "Lora", Georgia, serif;
+    }
+    .font-mono {
+      font-family: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* --- SVG Paper Noise Overlay --- */
+    .paper-grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.055;
+    }
+
+    /* --- Custom Utility & Zine Layout Components --- */
+    .zine-card {
+      background: #FFFFFF;
+      border: 3px solid var(--border-ink);
+      box-shadow: 6px 6px 0px 0px var(--border-ink);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .zine-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0px 0px var(--border-ink);
+    }
+
+    .zine-button {
+      background: #FFFFFF;
+      border: 2px solid var(--border-ink);
+      box-shadow: 4px 4px 0px 0px var(--border-ink);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "Roboto Mono", monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .zine-button:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--border-ink);
+    }
+
+    .zine-button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px 0px var(--border-ink);
+    }
+
+    /* --- Handwritten highlighter effect --- */
+    .text-highlight {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+    }
+
+    .text-highlight::after {
+      content: "";
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      bottom: 2px;
+      height: 40%;
+      background-color: var(--accent-highlighter-yellow);
+      z-index: -1;
+      transform: rotate(-1deg);
+      border-radius: 2px;
+    }
+
+    .text-highlight-blue::after {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+
+    /* --- Custom notebook / grid styling --- */
+    .grid-paper {
+      background-color: #fafbfc;
+      background-image: 
+        linear-gradient(#e1e6eb 1px, transparent 1px),
+        linear-gradient(90deg, #e1e6eb 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    @keyframes float-slow {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(0.5deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    .animate-float {
+      animation: float-slow 6s ease-in-out infinite;
+    }
+
+    /* Transition classes for random generator */
+    .fade-mask {
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    .fade-mask.loading {
+      opacity: 0.1;
+      transform: scale(0.98);
+    }
+
+    /* --- Custom Mobile Marquee Animation --- */
+    @keyframes marquee-mobile {
+      0% { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    @media (max-width: 767px) {
+      .marquee-mobile-wrapper {
+        min-width: max-content;
+        animation: marquee-mobile 18s linear infinite;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen">
+
+  <svg class="paper-grain" xmlns="http://www.w3.org/2000/svg">
+    <filter id="paper-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.05 0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#paper-noise)" />
+  </svg>
+
+  <nav class="sticky top-0 bg-[#FAF8F5]/95 backdrop-blur-md border-b-3 border-[#1C1917] z-50 py-3">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded bg-[#EA580C] border-2 border-stone-900 text-white font-syne font-extrabold flex items-center justify-center text-xl shadow-[2px_2px_0px_0px_#1c1917] rotate-[-3deg]">
+          D
+        </div>
+        <div>
+          <span class="font-syne font-extrabold text-lg tracking-tight uppercase block leading-none">
+            Club de Debate
+          </span>
+          <span class="font-mono text-[10px] tracking-wider text-[#EA580C] block font-bold mt-1">
+            CAMPUS ALBACETE • UCLM
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-center items-center gap-1 md:gap-2 text-[11px] md:text-sm">
+        <a href="#inicio" id="nav-inicio" class="px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-semibold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all text-stone-700 hover:bg-stone-100 hover:text-stone-900">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>El Exordio</span>
+        </a>
+        <a href="#idea" id="nav-idea" class="px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-semibold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all text-stone-700 hover:bg-stone-100 hover:text-stone-900">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>La Idea</span>
+        </a>
+        <a href="#dilemas" id="nav-dilemas" class="px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-semibold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all text-stone-700 hover:bg-stone-100 hover:text-stone-900">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+          <span>Eje Dilemas</span>
+        </a>
+        <a href="#sesiones" id="nav-sesiones" class="px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-semibold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all text-stone-700 hover:bg-stone-100 hover:text-stone-900">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          <span>Sesiones</span>
+        </a>
+      </div>
+
+      <a href="#sesiones" class="hidden lg:inline-flex px-4 py-2 font-mono text-xs uppercase font-extrabold tracking-wider bg-yellow-300 text-stone-900 border-2 border-stone-900 shadow-[3px_3px_0px_0px_rgba(28,25,23,1)] hover:shadow-[1px_1px_0px_0px_rgba(28,25,23,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded items-center gap-1">
+        <span>Siguiente Jueves</span>
+        <i data-lucide="zap" class="w-3.5 h-3.5 fill-yellow-500 text-[#1C1917] animate-pulse"></i>
+      </a>
+    </div>
+  </nav>
+
+  <div class="bg-[#1C1917] text-[#FAF8F5] py-2 overflow-hidden whitespace-nowrap border-b-2 border-stone-900 block w-full relative">
+    <div class="flex items-center gap-2 font-mono text-xs tracking-wider uppercase font-bold marquee-mobile-wrapper px-4 md:justify-center w-full">
+      <span class="animate-pulse text-[#EA580C]">●</span> 
+      <span>Próxima sesión: Jueves a las 17:30 h</span>
+      <span class="opacity-40">• Campus de Albacete (Melchor de Macanaz) •</span>
+      <span>Entrada libre y libre de etiquetas teóricas •</span>
+      <span class="text-[#86EFAC]">Cero formalidades corporatizadas</span>
+    </div>
+  </div>
+
+  <header id="inicio" class="relative pt-12 pb-20 md:py-28 px-4 md:px-6 max-w-6xl mx-auto flex flex-col items-center justify-center text-center z-10">
+    <div class="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-transparent to-transparent -z-10 rounded-full blur-3xl"></div>
+    
+    <div class="mb-6 rotate-[-1deg] inline-block">
+      <span class="px-4 py-1.5 font-mono text-xs font-bold bg-[#EA580C] text-white border-2 border-[#1C1917] rounded shadow-[3px_3px_0px_0px_#1C1917] tracking-wider uppercase flex items-center gap-1.5">
+        <i data-lucide="users" class="w-3.5 h-3.5 text-white"></i>
+        <span>Hecho por estudiantes, para estudiantes</span>
+      </span>
+    </div>
+
+    <h1 class="font-syne font-black text-3xl min-[400px]:text-4xl sm:text-6xl md:text-8xl tracking-tight text-[#1C1917] leading-tight md:leading-none mb-6 animate-float break-words">
+      RECONQUISTA EL <br class="block md:hidden"/><br class="hidden md:inline"/>
+      <span class="text-highlight text-highlight-blue bg-amber-50 rounded-lg px-2 border-2 border-dashed border-[#1C1917] inline-block mt-1 md:mt-0">PODER</span> DE LA PALABRA.
+    </h1>
+
+    <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-stone-700 max-w-3xl leading-relaxed mb-8 mt-2 md:mt-0">
+      Aquí se viene a aprender a hablar claro, perder el miedo escénico y estructurar argumentos lógicos que de verdad convenzan. Sin PowerPoint de directivo, sin trajes artificiales y sin discursos enlatados. 
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+      <a href="#sesiones" class="w-full sm:w-auto px-8 py-4 font-mono text-sm uppercase font-black text-stone-900 bg-[#EAB308] border-3 border-stone-900 shadow-[5px_5px_0px_0px_rgba(28,25,23,1)] hover:shadow-[2px_2px_0px_0px_rgba(28,25,23,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded text-center">
+        Quiero pasarme por la sesión
+      </a>
+      <a href="https://chat.whatsapp.com/mock_group_albacete" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-4 font-mono text-sm uppercase font-black text-white bg-[#2563EB] border-3 border-stone-900 shadow-[5px_5px_0px_0px_rgba(28,25,23,1)] hover:shadow-[2px_2px_0px_0px_rgba(28,25,23,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded text-center flex items-center justify-center gap-2">
+        <span>Unirme al WhatsApp del Campus</span>
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+    <div class="mt-12 p-4 max-w-md border-x-2 border-dashed border-stone-400 bg-stone-50/50 text-left">
+      <p class="font-mono text-[10px] tracking-wide text-stone-500 uppercase leading-relaxed font-semibold flex items-start gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-[#EA580C] shrink-0 mt-0.5"></i>
+        <span>
+          <strong class="text-stone-800">AVISO A NAVEGANTES:</strong> No somos una empresa. No te vamos a vender cursos online de 2.000€, ni te prometeremos 'automatizaciones cuánticas con IA' para dar tu discurso. Esto es el auténtico club del campus de Albacete: personas reales pensando de verdad frente a otras personas.
+        </span>
+      </p>
+    </div>
+
+    <div class="mt-10 animate-bounce">
+      <a href="#idea" class="flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-850">
+        <span class="font-mono text-[10px] uppercase tracking-wider font-bold font-syne">Baja y entra en el club</span>
+        <span class="text-xl">↓</span>
+      </a>
+    </div>
+  </header>
+
+  <section id="idea" class="py-20 bg-white border-y-3 border-stone-900">
+    <div class="max-w-6xl mx-auto px-4 md:px-6">
+      <div class="text-center md:text-left mb-16">
+        <span class="font-mono text-xs tracking-widest text-[#EA580C] uppercase font-extrabold block mb-2 font-syne">
+          [ 01 / NUESTRO MANIFIESTO ]
+        </span>
+        <h2 class="font-syne font-extrabold text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight text-[#1C1917] inline-block relative">
+          ¿Por qué narices deberías debatir?
+        </h2>
+        <div class="h-1 bg-[#1C1917] w-24 mt-2 mx-auto md:mx-0"></div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        
+        <div class="zine-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 bg-amber-100 border-2 border-stone-900 rounded flex items-center justify-center mb-6">
+              <i data-lucide="mic" class="w-5 h-5 text-stone-900"></i>
+            </div>
+            <h3 class="font-syne font-extrabold text-xl mb-3 uppercase tracking-tight">
+              1. Perder el pánico escénico
+            </h3>
+            <p class="font-serif italic text-stone-600 leading-relaxed text-sm">
+              El 90% de nosotros empezamos temblando al defender nuestro primer caso. Es una reacción humana. Aquí te enseñamos que no pasa de ahí; entrenamos la corporalidad, los pulmones y el tono hasta que el escenario sea un juego.
+            </p>
+          </div>
+          <div class="mt-6 font-mono text-[11px] font-bold text-amber-600">
+            #SinMiedosAlTFG
+          </div>
+        </div>
+
+        <div class="zine-card p-6 flex flex-col justify-between md:rotate-[1deg]">
+          <div>
+            <div class="w-12 h-12 bg-blue-100 border-2 border-stone-900 rounded flex items-center justify-center mb-6">
+              <i data-lucide="scale" class="w-5 h-5 text-stone-900"></i>
+            </div>
+            <h3 class="font-syne font-extrabold text-xl mb-3 uppercase tracking-tight">
+              2. Pensar rápido y defender lo indefendible
+            </h3>
+            <p class="font-serif italic text-stone-650 leading-relaxed text-sm">
+              ¿Te ha pasado? Se te ocurre el argumento perfecto tres horas después de terminar la discusión. Aquí aprendes a mapear tu cerebro al vuelo y a argumentar coherentemente posturas opuestas que no son las tuyas. Es el mayor acelerador intelectual.
+            </p>
+          </div>
+          <div class="mt-6 font-mono text-[11px] font-bold text-blue-600">
+            #EstructuraMental
+          </div>
+        </div>
+
+        <div class="zine-card p-6 flex flex-col justify-between md:rotate-[-0.5deg]">
+          <div>
+            <div class="w-12 h-12 bg-green-100 border-2 border-stone-900 rounded flex items-center justify-center mb-6">
+              <i data-lucide="coffee" class="w-5 h-5 text-stone-900"></i>
+            </div>
+            <h3 class="font-syne font-extrabold text-xl mb-3 uppercase tracking-tight">
+              3. Cruzar fronteras de otras carreras
+            </h3>
+            <p class="font-serif italic text-stone-650 leading-relaxed text-sm">
+              Hacer un grupo interdisciplinar en Albacete es lo mejor. Juntamos gente de Derecho, Informática, Humanidades, Enfermería o Magisterio. Ninguna facultad es dueña de la verdad; ver cómo argumenta un informático frente a un jurista es maravilloso.
+            </p>
+          </div>
+          <div class="mt-6 font-mono text-[11px] font-bold text-green-600">
+            #LaNocheDeCañas
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-16 bg-[#FEF08A] border-3 border-stone-900 p-6 md:p-8 rounded shadow-[6px_6px_0px_0px_#1C1917] relative md:rotate-[-0.5deg]">
+        <div class="absolute -top-4 -right-2 transform rotate-12">
+          <span class="px-3 py-1 font-mono text-[10px] font-bold tracking-widest bg-stone-900 text-white border-2 border-white rounded uppercase">
+            ¡Nuestros Leyes!
+          </span>
+        </div>
+        <p class="font-serif text-lg md:text-xl text-stone-900 leading-relaxed italic mb-4">
+          "No buscamos oradores de manual académico que hablen como robots solemnes o políticos del telediario. Nos encantan los oradores humanos, apasionados, que se explican cara a cara, saben escuchar al opositor y son capaces de reírse de sí mismos si es necesario."
+        </p>
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="font-mono text-xs uppercase font-extrabold text-[#EA580C]">
+            — Principio Fundamental nº 0
+          </span>
+          <span class="font-mono text-[11px] text-stone-600">
+            (Cafetería de la Facultad, Albacete)
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dilemas" class="py-20 px-4 md:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <span class="font-mono text-xs tracking-widest text-[#2563EB] uppercase font-extrabold block mb-2">
+        [ 02 / EL DETONADOR DE DILEMAS INTERACTIVO ]
+      </span>
+      <h2 class="font-syne font-extrabold text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight text-[#1C1917]">
+        ¿De qué se debate de verdad en Albacete?
+      </h2>
+      <p class="font-serif text-stone-600 italic max-w-2xl mx-auto mt-3">
+        Evitamos las mociones aburridas de congresos ministeriales externos. Nosotros construimos dilemas que te tocan el bolsillo, la salud o el orgullo. Pon a prueba tu lógica intelectual.
+      </p>
+      <div class="h-1 bg-[#2563EB] w-32 mt-4 mx-auto"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="w-full bg-[#FFFFFF] border-3 border-stone-900 shadow-[8px_8px_0px_0px_#1C1917] p-6 sm:p-8 flex flex-col justify-between grid-paper rounded relative overflow-hidden">
+        
+        <div class="flex items-center justify-between border-b-2 border-stone-300 pb-4 mb-6">
+          <div class="flex items-center gap-2">
+            <span id="dilema-label" class="font-mono text-xs font-bold px-2.5 py-1 bg-[#FAF8F5] border border-stone-800 rounded">
+              CARGANDO MOCIÓN...
+            </span>
+            <span id="dilema-category" class="font-mono text-xs font-bold px-2.5 py-1 text-stone-500 border border-stone-300 rounded bg-stone-100">
+              ...
+            </span>
+          </div>
+          <i data-lucide="help-circle" class="w-5 h-5 text-stone-400"></i>
+        </div>
+
+        <div class="mb-8 text-left fade-mask loading" id="dilema-content-area">
+          <h3 id="dilema-title" class="font-syne font-extrabold text-2xl sm:text-3xl text-stone-900 leading-tight mb-4">
+            Conectando con el archivo de dilemas...
+          </h3>
+          <p class="font-mono text-xs text-stone-650 italic bg-amber-50/70 p-3 border-l-3 border-amber-400 rounded flex items-start gap-1.5 leading-relaxed">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <span><strong class="font-bold underline">Ubicación contextual:</strong> <span id="dilema-context">Por favor espera un segundo.</span></span>
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 pb-8 mb-6 border-b border-stone-200 text-left fade-mask loading" id="dilema-procon-area">
+          
+          <div class="p-4 bg-emerald-50/50 border-2 border-emerald-950 border-dashed rounded relative">
+            <div class="absolute top-2 right-2 text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider">
+              Postura A Favor
+            </div>
+            <h4 class="font-mono text-xs font-black uppercase text-emerald-850 tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="thumbs-up" class="w-4 h-4 text-emerald-600"></i>
+              <span>Pro-Tesis</span>
+            </h4>
+            <p id="dilema-pro" class="font-serif text-sm text-stone-700 leading-normal">
+              ...
+            </p>
+          </div>
+
+          <div class="p-4 bg-red-50/50 border-2 border-red-950 border-dashed rounded relative">
+            <div class="absolute top-2 right-2 text-red-700 bg-red-100 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider">
+              Postura En Contra
+            </div>
+            <h4 class="font-mono text-xs font-black uppercase text-red-850 tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="thumbs-down" class="w-4 h-4 text-red-500 text-red-505"></i>
+              <span>Contra-Tesis</span>
+            </h4>
+            <p id="dilema-con" class="font-serif text-sm text-stone-700 leading-normal">
+              ...
+            </p>
+          </div>
+
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button id="btn-random-dilema" class="w-full sm:w-auto px-5 py-3 bg-white hover:bg-stone-50 border-2 border-stone-900 text-xs font-mono font-extrabold uppercase rounded shadow-[3px_3px_0px_0px_#1C1917] hover:shadow-[1px_1px_0px_0px_#1C1917] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50" disabled>
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 shrink-0"></i>
+            <span>Sortea otro dilema</span>
+          </button>
+          <span class="font-mono text-[10px] text-stone-400">
+            Seleccionado de nuestro banco de debate local
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="sesiones" class="py-20 bg-white border-t-3 border-b-3 border-stone-900">
+    <div class="max-w-6xl mx-auto px-4 md:px-6">
+      
+      <div class="grid md:grid-cols-12 gap-12 items-center">
+        
+        <div class="md:col-span-12 lg:col-span-5 bg-amber-50 border-3 border-stone-900 shadow-[10px_10px_0px_0px_#1C1917] rounded-lg p-6 relative">
+          <div class="absolute -top-3 left-6">
+            <span class="px-3 py-1 bg-stone-900 text-white font-mono text-[9px] uppercase tracking-widest font-extrabold rounded">
+              ★ CONVOCATORIA OFICIAL
+            </span>
+          </div>
+          
+          <h3 class="font-syne font-black text-3xl tracking-tight uppercase border-b-2 border-stone-900 pb-4 mb-6 text-stone-900 mt-2">
+            EL PRÓXIMO JUEVES
+          </h3>
+
+          <div class="space-y-6 text-left">
+            
+            <div class="flex gap-4 items-start">
+              <div class="w-9 h-9 bg-stone-900 text-[#FAF8F5] rounded flex items-center justify-center shrink-0">
+                <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+              </div>
+              <div>
+                <h4 class="font-mono text-xs uppercase text-stone-500 font-bold tracking-wider leading-none mb-1">Hora precisa</h4>
+                <p class="font-syne font-extrabold text-lg text-[#1C1917]">17:30 a 19:30 h</p>
+                <p class="font-mono text-[10px] text-stone-400 mt-0.5">Todos los jueves del año lectivo</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4 items-start">
+              <div class="w-9 h-9 bg-stone-900 text-[#FAF8F5] rounded flex items-center justify-center shrink-0">
+                <i data-lucide="map-pin" class="w-4 h-4 text-blue-400"></i>
+              </div>
+              <div>
+                <h4 class="font-mono text-xs uppercase text-stone-500 font-bold tracking-wider leading-none mb-1">¿Dónde estamos exactamente?</h4>
+                <p class="font-syne font-extrabold text-md text-[#1C1917]">Aula 1.04 • Edificio Melchor de Macanaz</p>
+                <p class="font-serif text-xs text-stone-600 mt-0.5">Campus de Albacete (UCLM). Si hay cambio de aula, avisamos 1 hora antes por el grupo de Telegram/WhatsApp.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4 items-start">
+              <div class="w-9 h-9 bg-stone-900 text-[#FAF8F5] rounded flex items-center justify-center shrink-0">
+                <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i>
+              </div>
+              <div>
+                <h4 class="font-mono text-xs uppercase text-stone-500 font-bold tracking-wider leading-none mb-1">Requisitos para entrar</h4>
+                <p class="font-syne font-extrabold text-[#EA580C]">Absolutamente NINGUNO</p>
+                <p class="font-serif text-xs text-stone-600 mt-0.5">No hay que registrarse previamente ni presentar carné de nada. Llegas, te sientas y disfrutas.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4 items-start">
+              <div class="w-9 h-9 bg-stone-900 text-[#FAF8F5] rounded flex items-center justify-center shrink-0">
+                <i data-lucide="award" class="w-4 h-4 text-yellow-400"></i>
+              </div>
+              <div>
+                <h4 class="font-mono text-xs uppercase text-stone-500 font-bold tracking-wider leading-none mb-1">Precio</h4>
+                <p class="font-syne font-extrabold text-lg text-emerald-700">0€ (Totalmente Libre)</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-8 pt-4 border-t-2 border-stone-900 border-dashed text-center">
+            <span class="font-mono text-[10px] italic text-stone-600 font-bold block">
+              "No nos importa tu carrera, tu ideología o si tartamudeas al leer. Aquí te daremos la bienvenida."
+            </span>
+          </div>
+        </div>
+
+        <div class="md:col-span-12 lg:col-span-7">
+          <span class="font-mono text-xs tracking-widest text-[#EA580C] uppercase font-extrabold block mb-2">
+            [ 03 / CÓMO FUNCIONA UNA SESIÓN ]
+          </span>
+          <h2 class="font-syne font-extrabold text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight text-[#1C1917] mb-6 text-left">
+            ¿Qué pasa cuando cruzas esa puerta?
+          </h2>
+          <p class="font-serif text-stone-600 italic text-base mb-8 leading-relaxed text-left">
+            Nuestras tardes no consisten en una clase magistral de retórica tradicional donde un experto aburrido lee un estrado. Son asambleas dinámicas estructuradas en tres mitades:
+          </p>
+
+          <div class="space-y-6 text-left">
+            
+            <div class="p-4 border-l-4 border-[#2563EB] bg-stone-50 rounded">
+              <h4 class="font-syne font-extrabold text-base uppercase text-stone-900 mb-1">
+                Fase A: El Calentamiento Improvisado (15 min)
+              </h4>
+              <p class="font-serif text-sm text-stone-600 leading-relaxed">
+                Hacemos dinámicas rápidas para romper el hielo: venderle un imperdible oxidado a tus compañeros, excusarte por llegar tarde en verso o refutar tonterías divertidas de cultura popular sin preparártelo antes. Excelente para desconectar la mente.
+              </p>
+            </div>
+
+            <div class="p-4 border-l-4 border-[#EA580C] bg-stone-50 rounded">
+              <h4 class="font-syne font-extrabold text-base uppercase text-stone-900 mb-1">
+                Fase B: El Combate Estructurado (60 min)
+              </h4>
+              <p class="font-serif text-sm text-stone-600 leading-relaxed">
+                Sorteamos dos equipos de entre los asistentes (puedas participar o elegir solo mirar). Lanzamos una moción polémica y damos 15 minutos para estructurar argumentos con folios sueltos y bolis. Luego arranca el debate con tiempos controlados.
+              </p>
+            </div>
+
+            <div class="p-4 border-l-4 border-emerald-500 bg-stone-50 rounded">
+              <h4 class="font-syne font-extrabold text-base uppercase text-stone-900 mb-1">
+                Fase C: Deconstrucción y Café / Caña (45 min)
+              </h4>
+              <p class="font-serif text-sm text-stone-600 leading-relaxed">
+                El orador senior o coordinador del grupo da feedback práctico individual, con total cariño, centrándose exclusivamente en lo que más te sirva (control de pies, modulación vocal, falacias lógicas). Y finalmente cerramos la discusión de forma distendida.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-20 p-8 border-3 border-stone-900 bg-emerald-50 rounded-lg shadow-[8px_8px_0px_0px_#1C1917]">
+        <div class="grid md:grid-cols-12 gap-6 items-center text-left">
+          <div class="md:col-span-8">
+            <h3 class="font-syne font-extrabold text-2xl uppercase mb-2 tracking-tight flex items-start sm:items-center gap-2">
+              <i data-lucide="alert-circle" class="w-6 h-6 text-[#EA580C] shrink-0"></i>
+              <span>¿Tienes miedo de hablar el primer día? Elige el MODO ESPECTADOR</span>
+            </h3>
+            <p class="font-serif text-stone-700 text-sm leading-relaxed">
+              Sabemos que dar el paso cuesta. Por eso respetamos al 100% el <strong>Modo Sombra</strong>. Puedes venir a las sesiones, sentarte atrás silenciosamente con tus apuntes o cuaderno, ver cómo debaten los demás y comer palomitas o café. Nadie te obligará a hablar hasta que tú levantes la mano de forma soberana.
+            </p>
+          </div>
+          <div class="md:col-span-4 justify-self-center md:justify-self-end w-full md:w-auto">
+            <a href="https://chat.whatsapp.com/mock_group_albacete" target="_blank" rel="noopener noreferrer" class="w-full md:w-auto px-6 py-4 font-mono text-xs uppercase font-extrabold bg-[#1C1917] hover:bg-stone-800 text-white rounded shadow-[3px_3px_0px_0px_#EA580C] transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span>Entrar al Grupo de WhatsApp</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 shrink-0"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="bg-[#1C1917] text-[#FAF8F5] pt-16 pb-12 px-4 md:px-6 border-t-4 border-[#1C1917]">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="grid md:grid-cols-12 gap-8 mb-12 border-b border-stone-800 pb-12">
+        
+        <div class="md:col-span-5 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded bg-[#EA580C] text-white font-syne font-extrabold flex items-center justify-center text-lg">
+              D
+            </div>
+            <div>
+              <span class="font-syne font-black tracking-wider uppercase block text-md">
+                CLUB DE DEBATE ALBACETE
+              </span>
+              <span class="font-mono text-xs tracking-widest text-[#EAB308] block">
+                Por y para estudiantes de la UCLM
+              </span>
+            </div>
+          </div>
+          <p class="font-serif italic text-xs text-stone-400 leading-relaxed max-w-sm">
+            Un rincón de libertad dialéctica autofinanciado y autogestionado en el campus de Albacete. No dependemos de ninguna cúpula burocrática, empresa de recursos humanos o marca corporativa internacional.
+          </p>
+        </div>
+
+        <div class="md:col-span-3">
+          <h4 class="font-mono text-xs font-bold uppercase tracking-wider text-[#EA580C] mb-4">Secciones webs</h4>
+          <ul class="space-y-2 font-mono text-xs">
+            <li><a href="#inicio" class="text-stone-400 hover:text-white flex items-center gap-1"><span>El Exordio</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#EAB308]"></i></a></li>
+            <li><a href="#idea" class="text-stone-400 hover:text-white flex items-center gap-1"><span>Manifiesto Idea</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#EAB308]"></i></a></li>
+            <li><a href="#dilemas" class="text-stone-400 hover:text-white flex items-center gap-1"><span>Dilemas Activos</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#EAB308]"></i></a></li>
+            <li><a href="#sesiones" class="text-stone-400 hover:text-white flex items-center gap-1"><span>Coordenadas Aulas</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#EAB308]"></i></a></li>
+          </ul>
+        </div>
+
+        <div class="md:col-span-4 bg-stone-900 border border-stone-800 p-5 rounded relative">
+          <h4 class="font-syne font-bold text-sm uppercase text-[#EAB308] mb-2">Compromiso de Autenticidad</h4>
+          <p class="font-serif italic text-xs text-stone-300 leading-relaxed mb-4">
+            "Esta web no almacena cookies espía, no tiene sistemas de ventas automatizados ni planes de marketing sombríos. Hemos diseñado el club para pasar un buen rato debatiendo los jueves, conocer gente maja de Albacete y mejorar juntos de forma sincera."
+          </p>
+          <div class="font-mono text-[10px] text-stone-400 text-right">
+            📝 Firmado colectivamente, <span class="text-[#EA580C] font-bold">Comité de Coordinación</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-[10px] text-stone-500">
+        <div>
+          © 2026 Club de Debate y Oratoria del Campus de Albacete. Hecho por alumnos sin financiación pública.
+        </div>
+        <div class="flex gap-4">
+          <span>UCLM Albacete • España</span>
+          <span>•</span>
+          <a href="https://chat.whatsapp.com/mock_group_albacete" class="hover:text-white underline">Entra al WhatsApp</a>
+          <span>•</span>
+          <a href="#inicio" class="hover:text-white underline">Subir ↑</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    // --- VARIABLES ---
+    let DEBATE_DILEMMAS = [];
+    let currentDilemmaIndex = 0;
+
+    // Elements
+    const dilemaLabel = document.getElementById('dilema-label');
+    const dilemaCategory = document.getElementById('dilema-category');
+    const dilemaTitle = document.getElementById('dilema-title');
+    const dilemaContext = document.getElementById('dilema-context');
+    const dilemaPro = document.getElementById('dilema-pro');
+    const dilemaCon = document.getElementById('dilema-con');
+    const btnRandomDilema = document.getElementById('btn-random-dilema');
+    const contentArea = document.getElementById('dilema-content-area');
+    const proconArea = document.getElementById('dilema-procon-area');
+
+    // --- FETCH DATA FROM JSON ---
+    async function loadDilemmas() {
+      try {
+        const response = await fetch('dilemas.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        DEBATE_DILEMMAS = await response.json();
+        
+        // Habilitar botón y mostrar el primer dilema
+        btnRandomDilema.disabled = false;
+        
+        contentArea.classList.remove('loading');
+        proconArea.classList.remove('loading');
+        
+        updateDilemmaUI(0);
+        
+      } catch (error) {
+        console.error("Error al cargar los dilemas:", error);
+        dilemaTitle.innerText = "Error cargando las mociones de debate. Verifica tu conexión o revisa que 'dilemas.json' exista.";
+        dilemaContext.innerText = "Error de carga JSON.";
+      }
+    }
+
+    // --- UPDATE UI FUNCTION ---
+    function updateDilemmaUI(index) {
+      if (DEBATE_DILEMMAS.length === 0) return;
+      
+      currentDilemmaIndex = index;
+      const dilemma = DEBATE_DILEMMAS[currentDilemmaIndex];
+
+      dilemaLabel.innerText = `MOCIÓN ACTIVA Nº ${dilemma.id}`;
+      dilemaCategory.innerText = dilemma.category.toUpperCase();
+      
+      // Colors according to category
+      dilemaCategory.className = "font-mono text-xs font-bold px-2.5 py-1 text-white border border-stone-1000 rounded";
+      if (dilemma.category === 'Campus') {
+        dilemaCategory.classList.add('bg-[#EA580C]');
+      } else if (dilemma.category === 'Ética') {
+        dilemaCategory.classList.add('bg-[#2563EB]');
+      } else if (dilemma.category === 'Sociedad') {
+        dilemaCategory.classList.add('bg-emerald-600');
+      } else {
+        dilemaCategory.classList.add('bg-purple-650');
+      }
+
+      dilemaTitle.innerText = `"${dilemma.title}"`;
+      dilemaContext.innerText = dilemma.context;
+      dilemaPro.innerText = dilemma.pro;
+      dilemaCon.innerText = dilemma.con;
+    }
+
+    // Random Dilemma Generator Action
+    btnRandomDilema.addEventListener('click', () => {
+      if (DEBATE_DILEMMAS.length <= 1) return;
+
+      // Add transitions
+      contentArea.classList.add('loading');
+      proconArea.classList.add('loading');
+
+      setTimeout(() => {
+        // Find next index keeping it random
+        let nextIndex = currentDilemmaIndex;
+        const pool = DEBATE_DILEMMAS.map((_, i) => i).filter(i => i !== currentDilemmaIndex);
+        if (pool.length > 0) {
+          nextIndex = pool[Math.floor(Math.random() * pool.length)];
+        }
+        
+        updateDilemmaUI(nextIndex);
+
+        // Remove transitions
+        contentArea.classList.remove('loading');
+        proconArea.classList.remove('loading');
+      }, 250);
+    });
+
+    // --- HEADING ACTIVE ACCENT HIGHLIGHT ON SCROLL ---
+    const sections = ['inicio', 'idea', 'dilemas', 'sesiones'];
+    window.addEventListener('scroll', () => {
+      let activeSection = 'inicio';
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 220 && rect.bottom >= 220) {
+            activeSection = section;
+            break;
+          }
+        }
+      }
+
+      sections.forEach(secId => {
+        const navLink = document.getElementById(`nav-${secId}`);
+        if (navLink) {
+          if (secId === activeSection) {
+            navLink.className = "px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-bold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all bg-[#1C1917] text-[#FAF8F5] transform -translate-y-[1px]";
+          } else {
+            navLink.className = "px-2.5 py-1.5 font-mono text-[10px] md:text-xs font-semibold rounded uppercase tracking-tight flex items-center gap-1 md:gap-1.5 transition-all text-stone-700 hover:bg-stone-50 hover:text-stone-900";
+          }
+        }
+      });
+    });
+
+    // Initialize lucide icons in page
+    lucide.createIcons();
+
+    // Iniciar carga de datos al arrancar
+    loadDilemmas();
+  </script>
+</body>
+</html>

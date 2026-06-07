@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "title": "¿Deberían prohibirse por completo los exámenes y clases presenciales a las 8:30 AM?",
+    "category": "Campus",
+    "pro": "Prioriza el sueño estudiantil, mejora el rendimiento cognitivo y reduce el absentismo por sábanas pegadas.",
+    "con": "Los preparar para el 'mundo real' laboral y distribuye mejor el uso de las instalaciones del campus durante el día.",
+    "context": "Basado en los cientos de cafés dobles consumidos en la cafetería de Melchor de Macanaz antes de que salga el sol."
+  },
+  {
+    "id": 2,
+    "title": "¿Tiene la Inteligencia Actoral el potencial de matar la creatividad humana o es solo un soplete nuevo?",
+    "category": "Ética",
+    "pro": "Nos vuelve perezosos, homogeniza el estilo literario y reduce la necesidad de entrenar un pensamiento crítico real.",
+    "con": "Automatiza lo tedioso, dándonos superpoderes para experimentar con ideas que antes tardábamos días en programar o diseñar.",
+    "context": "El debate eterno de todas las facultades, mientras media clase la usa para formatear apuntes."
+  },
+  {
+    "id": 3,
+    "title": "¿Es legítimo hackear/piratear libros académicos cuyos costes superen los 50€ para fines de estudio?",
+    "category": "Ética",
+    "pro": "El conocimiento debe ser libre, especialmente el financiado públicamente, y las tasas universitarias ya son bastante caras.",
+    "con": "Vulnera la propiedad intelectual, desincentiva la creación de material didáctico de calidad y perjudica a autores independientes.",
+    "context": "Una discusión clásica del alumnado frente a la fotocopiadora del campus."
+  },
+  {
+    "id": 4,
+    "title": "¿Debería ser obligatoria la asistencia a clase en todas las facultades de la UCLM?",
+    "category": "Campus",
+    "pro": "Fomenta la constancia, facilita el debate en el aula y asegura que el dinero público invertido en profesores se aproveche.",
+    "con": "El alumno universitario es adulto y soberano; lo que debe evaluarse es el aprendizaje final, no el calentar una silla.",
+    "context": "El eterno conflicto entre los defensores de la evaluación continua estricta y los amantes de la libertad de horario."
+  },
+  {
+    "id": 5,
+    "title": "¿Deberíamos obligar constitucionalmente a que haya siempre opción sin cebolla en la tortilla de las cafeterías?",
+    "category": "Friki",
+    "pro": "La libertad de elección gastronómica es un pilar de la democracia y la cebolla distorsiona la textura pura de la patata.",
+    "con": "La tortilla concebollista es patrimonio histórico; la tortilla sin cebolla es simplemente puré de patatas cuajado y triste.",
+    "context": "Debatido intensamente en el campus con un café de máquina de 0,80 céntimos de por medio."
+  },
+  {
+    "id": 6,
+    "title": "¿Es preferible un trabajo de oficina aburrido pero hiper-seguro y estable o un proyecto pasional inestable?",
+    "category": "Sociedad",
+    "pro": "La estabilidad reduce la ansiedad, te permite disfrutar del tiempo libre real y construir una vida fuera del curro.",
+    "con": "Pasar un tercio de tu vida aburrido destruye el alma; el riesgo y el dinamismo son los que te hacen crecer intelectualmente.",
+    "context": "La paradoja de todo estudiante al acercarse a su último año de carrera."
+  },
+  {
+    "id": 7,
+    "title": "¿Deberían prohibirse los teléfonos móviles a menores de 16 años por ley?",
+    "category": "Sociedad",
+    "pro": "Protege su desarrollo neurológico, promueve la interacción física real y mitiga el ciberacoso escolar sistemático.",
+    "con": "Es una prohibición ineficaz que les aísla del lenguaje digital de su tiempo; la solución es la educación digital, no el veto.",
+    "context": "Un tema candente de retórica familiar y escolar discutido frecuentemente por los estudiantes de educación y derecho."
+  }
+]
